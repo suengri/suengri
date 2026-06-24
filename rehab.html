@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <!-- 适配手机屏幕（微信浏览必须） -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>膝关节术后康复助手</title>
+    <style>
+        /* 第二步的样式会写在这里 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+}
+body {
+    background: #f5f7fa;
+    padding: 16px 12px 40px;
+}
+#app {
+    max-width: 420px;
+    margin: 0 auto;
+}
+/* 头部 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.header h1 {
+    font-size: 22px;
+    color: #1a2a3a;
+}
+.badge {
+    background: #2b7be4;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 14px;
+    border-radius: 20px;
+}
+/* 日期选择器 */
+.date-setter {
+    background: white;
+    padding: 14px 16px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.date-setter label {
+    font-weight: 600;
+    color: #3d4a5a;
+    font-size: 15px;
+}
+.date-setter input {
+    border: 1px solid #d9e1ec;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 15px;
+    color: #1a2a3a;
+    background: #f8faff;
+}
+/* 统计卡片 */
+.stats {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.stat-item {
+    flex: 1;
+    background: white;
+    border-radius: 14px;
+    padding: 16px 0;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.stat-num {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a2a3a;
+    display: block;
+}
+.stat-label {
+    font-size: 13px;
+    color: #8a9aa8;
+    margin-top: 4px;
+    display: block;
+}
+/* 通用区块 */
+.section {
+    background: white;
+    border-radius: 16px;
+    padding: 18px 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.section h3 {
+    font-size: 16px;
+    color: #1a2a3a;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+#goalList {
+    list-style: none;
+    padding-left: 0;
+}
+#goalList li {
+    font-size: 14px;
+    color: #3d4a5a;
+    padding: 4px 0 4px 20px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%232b7be4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>') left center no-repeat;
+    background-size: 14px;
+}
+.caution-box {
+    margin-top: 12px;
+    background: #fff6e5;
+    border-left: 4px solid #faad14;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #7a6200;
+}
+/* 任务列表 */
+.task-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f4f8;
+}
+.task-item:last-child {
+    border-bottom: none;
+}
+.task-info {
+    flex: 1;
+    margin-left: 8px;
+}
+.task-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: #1a2a3a;
+}
+.task-desc {
+    font-size: 12px;
+    color: #8a9aa8;
+    margin-top: 2px;
+}
+.task-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    background: #eef5ff;
+    color: #2b7be4;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+.task-btn.done {
+    background: #e6f7e6;
+    color: #389e0d;
+}
+.task-btn:active {
+    opacity: 0.7;
+}
+/* 底部 */
+.footer {
+    text-align: center;
+    font-size: 12px;
+    color: #b0bcca;
+    margin-top: 10px;
+    line-height: 1.6;
+}
+
+
+
+
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>🦵 康复助手</h1>
+            <span id="phaseBadge" class="badge">保护期</span>
+        </div>
+
+        <!-- 手术日期设置 -->
+        <div class="date-setter">
+            <label>📅 手术日期</label>
+            <input type="date" id="surgeryDateInput">
+        </div>
+
+        <!-- 进度概览 -->
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-num" id="daysDisplay">0</span>
+                <span class="stat-label">术后天数</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-num" id="progressPercent">0%</span>
+                <span class="stat-label">今日完成</span>
+            </div>
+        </div>
+
+        <!-- 当前阶段目标 -->
+        <div class="section">
+            <h3>🎯 本阶段目标</h3>
+            <ul id="goalList">
+                <li>加载中...</li>
+            </ul>
+            <div class="caution-box" id="cautionBox">
+                ⚠️ <span id="cautionText">请设置手术日期</span>
+            </div>
+        </div>
+
+        <!-- 今日训练任务清单 -->
+        <div class="section">
+            <h3>✅ 今日康复训练</h3>
+            <div id="taskList">
+                <!-- 由 JavaScript 动态生成 -->
+            </div>
+        </div>
+
+        <!-- 底部提示 -->
+        <div class="footer">
+            <p>💡 训练后记得冰敷 15-20 分钟 · 如有剧痛请停止并咨询医生</p>
+        </div>
+    </div>
+
+    <script>
+        // 第三步的 JavaScript 逻辑会写在这里
+// ============================================================
+// 1. 数据定义（动作库 + 阶段配置）
+// ============================================================
+const actionLibrary = {
+    ankle_pump: {
+        id: 'ankle_pump',
+        name: '🔄 踝泵运动',
+        desc: '用力勾脚尖再绷直，每小时做5分钟',
+        sets: '500+次/日'
+    },
+    quad_set: {
+        id: 'quad_set',
+        name: '💪 股四头肌等长收缩',
+        desc: '膝下垫毛巾，用力下压使大腿绷紧',
+        sets: '500+次/日'
+    },
+    hamstring_set: {
+        id: 'hamstring_set',
+        name: '🦵 腘绳肌等长收缩',
+        desc: '足跟下压枕头，大腿后侧肌肉绷紧',
+        sets: '500+次/日'
+    },
+    slr: {
+        id: 'slr',
+        name: '⬆️ 直腿抬高',
+        desc: '伸膝抬高至足跟离床15cm，保持至力竭',
+        sets: '10次/组 × 3组'
+    },
+    passive_flex: {
+        id: 'passive_flex',
+        name: '🦿 被动屈膝练习',
+        desc: '健侧腿辅助患侧缓慢屈膝至微痛感',
+        sets: '10次/组 × 3组'
+    },
+    heel_slides: {
+        id: 'heel_slides',
+        name: '↕️ 足跟滑动',
+        desc: '足跟贴床面，缓慢向臀部滑动屈膝',
+        sets: '15次/组 × 3组'
+    },
+    wall_squat: {
+        id: 'wall_squat',
+        name: '🧱 靠墙静蹲',
+        desc: '背靠墙，缓慢下蹲至30-45°，保持30秒',
+        sets: '30秒/次 × 3组'
+    },
+    single_stand: {
+        id: 'single_stand',
+        name: '🚶 单腿站立平衡',
+        desc: '扶墙单腿站立，逐步减少手扶支撑',
+        sets: '30秒/次 × 3组'
+    },
+    forward_lunge: {
+        id: 'forward_lunge',
+        name: '🏋️ 弓步蹲',
+        desc: '前后站立，前腿屈膝下蹲至90°',
+        sets: '12次/组 × 3组'
+    },
+    step_up: {
+        id: 'step_up',
+        name: '🪜 上台阶训练',
+        desc: '患侧先踏上15-20cm台阶，健侧跟上',
+        sets: '10次/组 × 3组'
+    },
+    ice: {
+        id: 'ice',
+        name: '🧊 冰敷',
+        desc: '冰袋包裹毛巾，敷于膝关节前方',
+        sets: '15-20分钟/次'
+    }
+};
+
+const rehabPhases = [{
+    id: 'protection',
+    name: '保护期',
+    daysRange: [0, 14],
+    goals: ['控制术后疼痛与肿胀', '强调完全被动伸直', '激活股四头肌，不负重'],
+    caution: '患肢完全不负重，屈膝不超过90°，训练后冰敷',
+    actionIds: ['ankle_pump', 'quad_set', 'hamstring_set', 'slr', 'ice']
+}, {
+    id: 'early',
+    name: '早期',
+    daysRange: [15, 42],
+    goals: ['屈膝角度逐步达到90°', '逐步过渡至部分负重', '强化肌力'],
+    caution: '负重需遵医嘱，避免主动屈膝抗阻训练',
+    actionIds: ['ankle_pump', 'quad_set', 'hamstring_set', 'slr', 'passive_flex', 'heel_slides', 'ice']
+}, {
+    id: 'mid',
+    name: '中期',
+    daysRange: [43, 84],
+    goals: ['恢复全范围活动度', '完全负重，恢复自然步态', '开始平衡训练'],
+    caution: '避免跑跳及关节扭转，肌力训练以闭链动作为主',
+    actionIds: ['quad_set', 'slr', 'passive_flex', 'wall_squat', 'single_stand', 'ice']
+}, {
+    id: 'late',
+    name: '晚期',
+    daysRange: [85, 180],
+    goals: ['恢复日常生活能力', '为回归运动做准备', '强化离心控制'],
+    caution: '所有训练在无痛范围进行，避免突然变向',
+    actionIds: ['wall_squat', 'single_stand', 'forward_lunge', 'step_up', 'ice']
+}];
+
+// ============================================================
+// 2. 核心工具函数
+// ============================================================
+function getCurrentPhase(days) {
+    if (days < 0) return { ...rehabPhases[0], isPreOp: true, warning: '请确认手术日期是否正确' };
+    if (days > rehabPhases[rehabPhases.length - 1].daysRange[1]) return rehabPhases[rehabPhases.length - 1];
+    return rehabPhases.find(p => days >= p.daysRange[0] && days <= p.daysRange[1]);
+}
+
+function getActionsForPhase(phase) {
+    if (!phase || !phase.actionIds) return [];
+    return phase.actionIds.map(id => actionLibrary[id]).filter(a => a !== undefined);
+}
+
+// ============================================================
+// 3. 页面渲染逻辑
+// ============================================================
+function renderApp() {
+    // 读取本地存储的手术日期，默认今天
+    let surgeryDate = localStorage.getItem('surgeryDate');
+    let days = 0;
+    let phase = rehabPhases[0];
+    let actions = [];
+
+    if (surgeryDate) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const surg = new Date(surgeryDate);
+        surg.setHours(0, 0, 0, 0);
+        days = Math.floor((today - surg) / (1000 * 60 * 60 * 24));
+        phase = getCurrentPhase(days);
+        actions = getActionsForPhase(phase);
+        document.getElementById('surgeryDateInput').value = surgeryDate;
+    } else {
+        // 默认显示提示
+        document.getElementById('daysDisplay').innerText = '?';
+        document.getElementById('phaseBadge').innerText = '未设置';
+        document.getElementById('goalList').innerHTML = '<li>请设置手术日期以查看康复计划</li>';
+        document.getElementById('cautionText').innerText = '请在上方选择手术日期';
+        document.getElementById('taskList').innerHTML = '<div class="task-item" style="color:#8a9aa8;padding:16px 0;">设置日期后，专属训练将自动生成</div>';
+        document.getElementById('progressPercent').innerText = '--';
+        return;
+    }
+
+    // 更新头部和统计
+    document.getElementById('daysDisplay').innerText = days;
+    document.getElementById('phaseBadge').innerText = phase.name;
+
+    // 更新目标
+    document.getElementById('goalList').innerHTML = phase.goals.map(g => `<li>${g}</li>`).join('');
+    document.getElementById('cautionText').innerText = phase.caution || '遵医嘱进行康复';
+
+    // 获取今日打卡记录 (key: 'log_YYYY-MM-DD')
+    const todayKey = new Date().toISOString().split('T')[0];
+    const logKey = `log_${todayKey}`;
+    const completedSet = new Set(JSON.parse(localStorage.getItem(logKey) || '[]'));
+
+    // 渲染任务列表
+    const taskContainer = document.getElementById('taskList');
+    let total = actions.length;
+    let doneCount = 0;
+
+    if (total === 0) {
+        taskContainer.innerHTML = '<div class="task-item" style="color:#8a9aa8;">当前阶段暂无训练任务</div>';
+    } else {
+        taskContainer.innerHTML = actions.map(action => {
+            const isDone = completedSet.has(action.id);
+            if (isDone) doneCount++;
+            return `
+                <div class="task-item" data-id="${action.id}">
+                    <div class="task-info">
+                        <div class="task-name">${action.name}</div>
+                        <div class="task-desc">${action.desc} · ${action.sets}</div>
+                    </div>
+                    <button class="task-btn ${isDone ? 'done' : ''}" onclick="toggleTask('${action.id}')">
+                        ${isDone ? '✅ 完成' : '打卡'}
+                    </button>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 更新进度
+    const percent = total === 0 ? 0 : Math.round((doneCount / total) * 100);
+    document.getElementById('progressPercent').innerText = percent + '%';
+}
+
+// ============================================================
+// 4. 交互事件：打卡 & 修改日期
+// ============================================================
+function toggleTask(actionId) {
+    const todayKey = new Date().toISOString().split('T')[0];
+    const logKey = `log_${todayKey}`;
+    const arr = JSON.parse(localStorage.getItem(logKey) || '[]');
+    const index = arr.indexOf(actionId);
+    if (index > -1) {
+        arr.splice(index, 1); // 取消打卡
+    } else {
+        arr.push(actionId); // 打卡
+    }
+    localStorage.setItem(logKey, JSON.stringify(arr));
+    renderApp(); // 重新渲染
+}
+
+// 监听日期变化
+document.getElementById('surgeryDateInput').addEventListener('change', function(e) {
+    if (e.target.value) {
+        localStorage.setItem('surgeryDate', e.target.value);
+        renderApp();
+    }
+});
+
+// ============================================================
+// 5. 启动应用
+// ============================================================
+renderApp();
+
+    </script>
+</body>
+</html>
